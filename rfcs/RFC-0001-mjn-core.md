@@ -7,7 +7,7 @@
 | Author | Ryan Veteze (b0b) \<ryan@imajin.ai\> |
 | Status | DRAFT |
 | Created | 2026-02-25 |
-| Repository | github.com/ima-jin/imajin-ai |
+| Repository | github.com/ima-jin/mjn-protocol |
 
 ---
 
@@ -23,7 +23,7 @@ MJN is named for 今人 (*ima jin*) — Japanese for "now person." The protocol'
 
 This is a DRAFT RFC. It is published to establish prior art and invite community review. It does not represent a final specification. Changes are expected.
 
-Discussion: [github.com/ima-jin/imajin-ai/discussions](https://github.com/ima-jin/imajin-ai/discussions)
+Discussion: [github.com/ima-jin/mjn-protocol/discussions](https://github.com/ima-jin/mjn-protocol/discussions)
 
 ---
 
@@ -293,7 +293,7 @@ The MJN token is the native settlement currency of the protocol.
 
 It is not a speculative instrument. It is the mechanism by which value moves through attribution chains. Every `.fair` contract execution, every inference fee, every consent-triggered payment settles in MJN tokens by default.
 
-Token governance, issuance schedule, and economic parameters are defined in RFC-0004 (forthcoming).
+Token governance, issuance schedule, and economic parameters are defined in RFC-0004 .
 
 Token issuance is governed by the MJN Foundation under Swiss FINMA regulatory framework.
 
@@ -310,7 +310,7 @@ MJN defines four node types in the operator registry:
 | `operator` | Service node built on MJN | imajin.ai, Substack integration |
 | `infrastructure` | Protocol infrastructure node | Foundation nodes, relay nodes |
 
-Node type certification is defined in RFC-0003 (forthcoming).
+Node type certification is defined in RFC-0003 .
 
 ---
 
@@ -322,7 +322,7 @@ Node type certification is defined in RFC-0003 (forthcoming).
 
 **Settlement atomicity:** Settlement MUST be atomic. Implementations MUST NOT return content before settlement confirms. Race conditions between consent and settlement are a critical vulnerability.
 
-**Sybil resistance:** The trust graph provides Sybil resistance through social attestation. Nodes with no trust graph connections have limited network standing. Formal Sybil resistance mechanisms are defined in RFC-0005 (forthcoming).
+**Sybil resistance:** The trust graph provides Sybil resistance through social attestation. Nodes with no trust graph connections have limited network standing. Formal Sybil resistance mechanisms are defined in RFC-0005 .
 
 ---
 
@@ -348,12 +348,13 @@ This RFC invites community input on the following unresolved questions:
 
 | RFC | Title | Status |
 |-----|-------|--------|
-| RFC-0001 | MJN Core Specification (this document) | DRAFT |
-| RFC-0002 | did:mjn Method Specification | PLANNED |
-| RFC-0003 | Node Type Registry and Certification | PLANNED |
-| RFC-0004 | MJN Token Economics | PLANNED |
-| RFC-0005 | Trust Graph and Sybil Resistance | PLANNED |
-| RFC-0006 | .fair Manifest Extensions | PLANNED |
+| [RFC-0001](RFC-0001-mjn-core.md) | MJN Core Specification (this document) | DRAFT |
+| [RFC-0002](RFC-0002-did-mjn-method.md) | did:mjn Method Specification | DRAFT |
+| [RFC-0003](RFC-0003-node-registry.md) | Node Type Registry and Certification | DRAFT |
+| [RFC-0004](RFC-0004-token-economics.md) | MJN Token Economics | DRAFT |
+| [RFC-0005](RFC-0005-trust-graph.md) | Trust Graph and Sybil Resistance | DRAFT |
+| [RFC-0006](RFC-0006-fair-extensions.md) | .fair Manifest Extensions | DRAFT |
+| [RFC-0007](RFC-0007-government-identity.md) | Government Identity Attestation Layer | DRAFT |
 
 ---
 
