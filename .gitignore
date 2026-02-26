@@ -1,0 +1,33 @@
+# Microsoft Office files
+*.docx
+*.doc
+*.pptx
+*.ppt
+*.xlsx
+*.xls
+
+# PDF exports (can be generated from markdown)
+*.pdf
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Node modules (if you add tooling later)
+node_modules/
+package-lock.json
+
+# Build artifacts
+dist/
+build/
+*.log
