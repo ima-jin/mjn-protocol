@@ -8,20 +8,37 @@ HTTP moved documents. TCP/IP moved packets. Neither carried the human. MJN does.
 
 ---
 
-## The Four Primitives
+## The Architecture: Scopes × Primitives
 
-| Primitive | What it carries |
+The protocol is organized around two dimensions. Every problem MJN solves — every interaction, every settlement — is a cell in the matrix formed by their intersection.
+
+### Four Identity Scopes
+
+| Scope | What It Is |
+|-------|-----------|
+| **Actor** | One DID, one keypair. The atomic unit. Humans, agents, and devices. |
+| **Family** | Intimate trust. Shared resources, delegated authority. |
+| **Community** | Shared purpose. Trust earned and attested. |
+| **Business** | Structured entity. Roles, hierarchy, delegation chains. |
+
+### Five Primitives
+
+| Primitive | What It Carries |
 |-----------|----------------|
-| **DID** | Sovereign identity — cryptographically yours, not platform-issued |
-| **.fair** | Attribution manifest — who made this, in what proportion, on what terms |
-| **Consent** | Explicit, signed, machine-readable — not buried in terms of service |
-| **Settlement** | Automatic value distribution — no platform in the middle |
+| **Attestation** | Credentials, reputation, endorsement — cryptographically signed from the moment of issuance |
+| **Communication** | Scoped messaging within and across trust rings |
+| **Attribution** | .fair manifests, revenue chains, creative lineage — all manifests cryptographically signed |
+| **Settlement** | Payments, fees, declared-intent marketplace |
+| **Discovery** | Federated registry, node presence, queryable expertise |
+
+The protocol IS the matrix. Consent is embedded throughout — in Attestation and Attribution — because consent without attribution is unenforceable, and attribution without consent is theft.
 
 ---
 
 ## Read the Spec
 
 → [RFC-0001: MJN Core Specification](rfcs/RFC-0001-mjn-core.md)
+→ [RFC-0002: did:mjn Method Specification](rfcs/RFC-0002-did-mjn-method.md)
 
 ---
 
@@ -29,9 +46,14 @@ HTTP moved documents. TCP/IP moved packets. Neither carried the human. MJN does.
 
 The reference implementation is maintained by [imajin.ai](https://imajin.ai).
 
+**14 live services**, self-hosted on owned hardware:
+
+- **Core platform:** auth · profile · registry · connections · pay · events · chat · input · media · www
+- **Applications:** coffee · dykil · links · learn
 - Code: [github.com/ima-jin/imajin-ai](https://github.com/ima-jin/imajin-ai)
-- Live: auth.imajin.ai · profile.imajin.ai · registry.imajin.ai · chat.imajin.ai
 - First demonstration: April 1st, 2026
+
+37 days. 73 registered identities. Real events with real ticket sales. One person with architectural clarity and the right tooling.
 
 The reference implementation is one node among many. It does not define the protocol. The RFCs define the protocol.
 

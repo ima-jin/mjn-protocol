@@ -6,7 +6,7 @@ MJN is an open protocol. Anyone can propose a change, raise a problem, or submit
 
 ## How the RFC Process Works
 
-RFCs (Request for Comments) are how MJN evolves. Every change to the protocol — new primitives, extensions, corrections, security fixes — goes through an RFC.
+RFCs (Request for Comments) are how MJN evolves. Every change to the protocol — new primitives, new identity scopes, extensions, corrections, security fixes — goes through an RFC.
 
 ### Five Stages
 
