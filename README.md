@@ -6,6 +6,8 @@ MJN is an open protocol for sovereign human presence on the internet. It carries
 
 HTTP moved documents. TCP/IP moved packets. Neither carried the human. MJN does.
 
+MJN runs as **JBOS — Just a Bunch Of Services** on a cryptographic substrate. Independent HTTP services sit above a kernel of auth, pay, attestations, and `.fair` settlement — all backed by DFOS proof chains. Services are commodity. The chains are permanent.
+
 ---
 
 ## The Architecture: Scopes × Primitives

@@ -1,3 +1,7 @@
+> **Changelog — 2026-03-23:** DFOS integration — DFOS is now the L6 identity substrate. The stack diagram updated to reflect this. Key rotation, multifactor key roles (auth/assert/controller), and bilateral attestations are DFOS primitives, not MJN-custom mechanisms. The Attestation primitive now uses DFOS bilateral attestations (countersignatures). See new section: [DFOS Integration](#dfos-integration).
+
+---
+
 # RFC-0001: MJN Protocol Core Specification
 
 | Field | Value |
@@ -7,7 +11,7 @@
 | Author | Ryan Veteze (b0b) \<ryan@imajin.ai\> |
 | Status | DRAFT |
 | Created | 2026-02-25 |
-| Updated | 2026-03-12 |
+| Updated | 2026-03-23 |
 | Repository | github.com/ima-jin/imajin-ai |
 
 ---
@@ -57,6 +61,10 @@ MJN answers all of them at the protocol layer, natively, in every exchange.
 │  MJN                                                                 │
 │  attestation · communication · attribution · settlement · discovery  │
 ├──────────────────────────────────────────────────────────────────────┤
+│  DFOS                                                                │
+│  identity substrate · content chains · bilateral attestations        │
+│  key roles (auth / assert / controller) · relay network              │
+├──────────────────────────────────────────────────────────────────────┤
 │  HTTP / WebSockets                                                   │
 │  transport                                                           │
 ├──────────────────────────────────────────────────────────────────────┤
@@ -65,7 +73,33 @@ MJN answers all of them at the protocol layer, natively, in every exchange.
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-MJN does not replace HTTP. It gives HTTP exchanges sovereign meaning. An MJN request is a request from a verified identity, with attribution declared, consent embedded, and settlement instruction attached.
+MJN does not replace HTTP. It gives HTTP exchanges sovereign meaning.
+
+### JBOS Architecture
+
+MJN is implemented as **JBOS — Just a Bunch Of Services** running on a cryptographic substrate. The architecture has two distinct layers:
+
+```
+                    JBOS (Just a Bunch Of Services)
+┌──────────────────────────────────────────────────────────┐
+│  www · events · chat · learn · market · coffee · links   │  ← Userspace
+│  dykil · input · media                                   │     (disposable)
+├──────────────────────────────────────────────────────────┤
+│  connections · profile · registry                        │  ← Trust + Discovery
+├──────────────────────────────────────────────────────────┤
+│  auth · pay                                              │  ← Kernel
+│  attestations · .fair manifests · settlement             │     (signed chains)
+├──────────────────────────────────────────────────────────┤
+│  DFOS Proof Chains (L0–L5)                               │  ← Substrate
+│  Ed25519 · CID · dag-cbor · countersignatures            │     (cryptographic)
+└──────────────────────────────────────────────────────────┘
+```
+
+**The kernel** is `auth` + `pay` + the attestation/settlement layer. Services above the kernel cannot do anything meaningful without it — settlement won't process, consent won't validate, attribution chains won't resolve. The kernel does not care which services exist above it.
+
+**Userspace** services are commodity. Swap them, rewrite them, add more. The value is in the cryptographic substrate underneath — signed identity chains that make every action verifiable and every relationship bilateral. Without the chains, each service is a dumb CRUD app. With the chains, they form a sovereign operating system where identity, attribution, trust, and settlement are structural properties.
+
+**The JBOS thesis:** services are commodity, chains are permanent. DFOS provides the identity substrate MJN builds on: content-addressed chains, key role separation, and cryptographically verifiable bilateral attestations. MJN primitives (Attribution, Attestation, Settlement) operate over DFOS; they do not reimplement what DFOS already provides. An MJN request is a request from a verified identity, with attribution declared, consent embedded, and settlement instruction attached.
 
 ### The Architecture: Scopes × Primitives
 
@@ -619,6 +653,72 @@ A receiving node MUST:
 
 ---
 
+## DFOS Integration
+
+Imajin has integrated the DFOS protocol as the L6 identity substrate for the MJN stack. This section describes what DFOS provides, what MJN still owns, and how the boundary works.
+
+### What DFOS Provides
+
+**Identity chains.** Every MJN identity (Actor, Family, Community, Business) is backed by a DFOS identity chain — an append-only, content-addressed chain of signed operations. The chain is the canonical identity record. DIDs are operational aliases that resolve to the chain.
+
+**Multifactor key roles.** DFOS separates Ed25519 keys by role:
+
+| Role | Purpose |
+|------|---------|
+| `auth` | Authentication — proves you are who you claim to be |
+| `assert` | Assertion — signs attestations and attribution claims |
+| `controller` | Control — rotates keys, manages the identity chain |
+
+Prior to DFOS integration, MJN key rotation was an open question (see RFC-0002). Key rotation is now a DFOS primitive — the `controller` key publishes a rotation operation on the identity chain. Historical signatures under the old `assert` key remain valid because they are anchored to the chain state at the time of signing. MJN implementations MUST NOT reimplement key rotation; they MUST delegate to the DFOS chain.
+
+**Bilateral attestations.** The DFOS attestation model requires countersignatures from both the issuer and the subject. This is the mechanism underlying the `relationship.root` attestation type already defined in the MJN attestation vocabulary — it now has an explicit DFOS primitive backing it. All MJN attestations of significance (identity, trust edges, attribution consent) MUST be bilateral under DFOS. Unilateral attestations are demoted to hints — they can influence standing computation but cannot gate settlement or consent.
+
+**Relay network.** DFOS operates a relay network. MJN nodes that boot as DFOS relays inherit the relay network's federation topology. This replaces the need for a custom MJN federation protocol in the near term.
+
+### What MJN Still Owns
+
+DFOS provides the substrate. MJN provides the semantics layered on top:
+
+- **Identity scopes** (Actor/Family/Community/Business) — DFOS chains are untyped; MJN encodes scope type in the DID Document
+- **The five primitives** — Communication, Attribution, Settlement, and Discovery are MJN-layer semantics
+- **`.fair` manifests** — content chain genesis on DFOS, but with MJN-defined attribution schema and consent terms
+- **The declared-intent marketplace** — gas model, k-anonymity, frequency curves are MJN
+- **Standing computation** — the weighted trust score algorithm is MJN; the attestation records it queries are DFOS
+
+### Bilateral Attestations in MJN Context
+
+The existing MJN attestation schema (Primitive 1) remains valid. What changes is the signing requirement for attestations that gate protocol behavior:
+
+**Before DFOS integration:** Attestations were single-signature. The issuer signed; the record was authoritative.
+
+**After DFOS integration:** Attestations of significance MUST carry countersignatures. The subject must sign to acknowledge the attestation before it becomes effective. This matters most for:
+
+- `relationship.root` (onboarding anchor — already bilateral in the schema; now backed by DFOS)
+- Attribution claims in `.fair` manifests (contributor countersigns their share)
+- Trust edges in the trust graph (see RFC-0005)
+- Consent declarations (consumer countersigns the terms they are accepting)
+
+**Schema addition — `counterSignature` field:**
+
+```json
+{
+  "id": "att_xxx",
+  "issuer_did": "did:dfos:<issuer>",
+  "subject_did": "did:dfos:<subject>",
+  "type": "relationship.root",
+  "signature": "<ed25519-sig-by-issuer>",
+  "counterSignature": {
+    "value": "<ed25519-sig-by-subject>",
+    "signedAt": "<ISO-8601-timestamp>"
+  },
+  "issued_at": "2026-03-23T00:00:00Z"
+}
+```
+
+Attestations without `counterSignature` for types that require bilateral signing are marked `pending` and do not contribute to standing computation until countersigned.
+
+---
+
 ## Security Considerations
 
 **Key compromise:** If a DID private key is compromised, the node's historical signatures remain valid (immutability of the chain). Key rotation procedure is defined in RFC-0002.
@@ -713,4 +813,4 @@ Any implementation of this specification is a valid MJN node. No license require
 
 ---
 
-*Ryan Veteze (b0b) · ryan@imajin.ai · 2026-03-12*
+*Ryan Veteze (b0b) · ryan@imajin.ai · 2026-03-23 (DFOS integration update)*

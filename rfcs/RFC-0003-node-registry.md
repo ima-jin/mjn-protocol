@@ -1,3 +1,7 @@
+> **Changelog — 2026-03-23:** DFOS integration — Nodes now boot as DFOS relays. Node registration is creating an identity chain on the relay, not a custom registration protocol. There is no separate MJN node registration handshake; joining the DFOS relay network is the join operation. See new section: [DFOS Integration: Nodes as Relays](#dfos-integration-nodes-as-relays).
+
+---
+
 # RFC-0003: Node Type Registry and Certification
 
 | Field | Value |
@@ -7,6 +11,7 @@
 | Author | Ryan Veteze (b0b) \<ryan@imajin.ai\> |
 | Status | DRAFT |
 | Created | 2026-02-25 |
+| Updated | 2026-03-23 |
 | Depends on | RFC-0001, RFC-0002 |
 
 ---
@@ -14,6 +19,8 @@
 ## Abstract
 
 This document defines the MJN Node Type Registry — a classification system for the four types of nodes that can operate on the MJN network. It specifies the capabilities, requirements, and certification criteria for each node type.
+
+Each MJN node is a **JBOS instance** — a Just a Bunch Of Services deployment running on the cryptographic kernel defined in RFC-0001. The node type classification describes what userspace services and governance model that instance exposes, not the underlying kernel (auth + pay + attestation/settlement), which is uniform across all node types.
 
 ## Motivation
 
@@ -102,12 +109,13 @@ The registry serves three purposes:
 **Requirements:**
 - MUST be operated by the MJN Foundation or certified delegates
 - MUST provide core protocol services (DID resolution, registry, relay)
+- MUST boot as a DFOS relay (see DFOS Integration section)
 - MUST NOT charge fees for basic protocol operations
 - MUST publish operational transparency reports
 
 **Use cases:**
 - Foundation-operated resolver nodes
-- Protocol relay nodes
+- Protocol relay nodes (DFOS relay + MJN discovery)
 - Emergency failover infrastructure
 - Network monitoring and health services
 
@@ -123,6 +131,8 @@ The registry serves three purposes:
 2. **Community-verified** — Node type attested by trust graph connections
 3. **Foundation-certified** — Node type verified by MJN Foundation (required for `infrastructure` type)
 
+With DFOS integration, self-declared and community-verified certification is anchored to the DFOS identity chain of the node operator. A self-declared node type is a signed operation on the operator's chain; it is not just a claim in a DID Document. The chain record makes it auditable and tamper-evident.
+
 **TBD:** Full certification procedures, verification criteria, appeal mechanisms.
 
 ### Node Registry
@@ -134,6 +144,73 @@ The registry serves three purposes:
 - Registry entries MUST include: DID, node type, certification level, service endpoints, last verified date
 
 **TBD:** Registry data format, update procedures, retention policies.
+
+## DFOS Integration: Nodes as Relays
+
+### Node Boot as DFOS Relay
+
+With DFOS integration, MJN nodes boot as DFOS relays. This changes how node registration works:
+
+**Before DFOS integration (prior model):**
+- Nodes registered through a custom MJN registration protocol
+- Node presence was announced to the federated registry via a separate handshake
+- TBD: Full registration protocol (was an open question)
+
+**After DFOS integration (current model):**
+- A node boots by standing up a DFOS relay
+- There is no separate MJN node registration step — joining the DFOS relay network IS the join operation
+- Node identity is the relay's own DFOS identity chain
+- Node presence in the federated registry is the relay's presence in the DFOS relay network
+
+### Registration as Identity Chain Creation
+
+When a new identity registers on a DFOS-backed MJN node, the registration operation is:
+
+1. The user generates (or imports) an Ed25519 keypair
+2. The node relay creates a DFOS identity chain for that keypair — this is the genesis operation
+3. The chain genesis block contains the identity scope declaration, initial key roles, and node anchor reference
+4. The `did:imajin` alias is registered, pointing to the new chain
+
+No custom MJN registration protocol is required. The signed chain genesis IS the registration. Any relay that can reach the DFOS network can verify it.
+
+**What this eliminates:**
+- Custom registration handshake (was TBD — no longer needed)
+- Separate announcement mechanism (relay network handles this)
+- Platform-specific account creation (keypair + chain genesis = presence)
+
+### Node Type Declaration on Chain
+
+The four node types (`person`, `community`, `operator`, `infrastructure`) are declared as signed operations on the node operator's DFOS identity chain:
+
+```json
+{
+  "operation": "nodeType.declare",
+  "chainId": "dfos:chain:node-operator-123",
+  "nodeType": "operator",
+  "certificationLevel": "self-declared",
+  "capabilities": ["full-mjn-protocol", "inference", "settlement"],
+  "serviceEndpoint": "https://node.example.com/mjn",
+  "signature": "<ed25519-sig-by-controller-key>",
+  "timestamp": "2026-03-23T00:00:00Z"
+}
+```
+
+The chain record makes the declaration:
+- **Auditable:** The full history of type declarations is on the chain
+- **Tamper-evident:** Any modification breaks the chain
+- **Portable:** Any node can verify the declaration against the operator's public key
+
+### All Nodes vs Only Infrastructure
+
+All node types benefit from DFOS relay architecture. However:
+
+- **`infrastructure` nodes** MUST boot as DFOS relays
+- **`operator` nodes** SHOULD boot as DFOS relays (enables full federation)
+- **`community` and `person` nodes** MAY boot as DFOS relays or operate through an existing relay
+
+A `person` node that is not running its own relay is still a valid MJN node — it anchors its identity chain to a trusted relay and operates through it.
+
+---
 
 ## Rationale
 
@@ -225,4 +302,4 @@ Discussion: [github.com/ima-jin/mjn-protocol/issues](https://github.com/ima-jin/
 
 ---
 
-*Ryan Veteze (b0b) · ryan@imajin.ai · 2026-02-25*
+*Ryan Veteze (b0b) · ryan@imajin.ai · 2026-03-23 (DFOS integration update)*
