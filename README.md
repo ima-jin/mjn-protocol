@@ -1,4 +1,5 @@
 # MJN — iMaJiN Network Protocol
+**identity and authority for AI agents.**
 
 **今人 — ima jin — "now person"**
 
