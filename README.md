@@ -1,11 +1,11 @@
 # MJN — iMaJiN Network Protocol
+
 **identity and authority for AI agents.**
 
-**今人 — ima jin — "now person"**
+MJN is the protocol specification behind [Imajin](https://imajin.ai), the trust layer for AI agents.
+Imajin is in alpha. The RFCs describe the protocol, not a guarantee that every feature is implemented.
 
-MJN is an open protocol for sovereign human presence on the internet. It carries identity, attribution, consent, and value natively — at the protocol layer.
-
-HTTP moved documents. TCP/IP moved packets. Neither carried the human. MJN does.
+MJN carries identity, attribution, consent, and settlement at the protocol layer.
 
 MJN runs as **JBOS — Just a Bunch Of Services** on a cryptographic substrate. Independent HTTP services sit above a kernel of auth, pay, attestations, and `.fair` settlement — all backed by DFOS proof chains. Services are commodity. The chains are permanent.
 
